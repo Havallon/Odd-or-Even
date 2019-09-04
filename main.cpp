@@ -92,7 +92,7 @@ int main() {
         vector<vector<Point> >hull(1);
         convexHull(Mat(contours[indexA]), hull[0], false );
 
-        drawContours(frame, hull, (int)0, Scalar(255,255,0), 1, 8, vector<Vec4i>(), 0, Point() );
+        drawContours(frame, hull, (int)0, Scalar(255,255,255), 3, 8, vector<Vec4i>(), 0, Point() );
 
         //Exibindo as areas das mãos
         cv::rectangle(frame, rect, cv::Scalar(0, 255, 0),2);
