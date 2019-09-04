@@ -31,7 +31,6 @@ int main() {
     Mat imagemHSV;
     Mat primeiraFaixa;
     Mat segundaFaixa;
-    Mat mascaraPele;
     Mat mao1;
     Mat mao2;
 
@@ -43,13 +42,8 @@ int main() {
     Mat kernel;
     kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
 
-    int x = 10;
-    int y = 10;
-    int width = 450;
-    int height = 500;
-    cv::Rect rect(x, y, width, height);
-    x = 815;
-    cv::Rect rect2(x, y, width, height);
+    cv::Rect rect1(10, 10, 450, 500);
+    cv::Rect rect2(815, 10, 450, 500);
 
     int maiorA = 0;
     int indexA = 0;
@@ -62,24 +56,33 @@ int main() {
             if (c == 27) {
                 break;
             }
+
+        //Invertendo a imagem para uma melhor visualização
+        cv::flip(frame,frame,1);
         cvtColor(frame, imagemHSV, COLOR_BGR2HSV);
 
+        //Cortando a parte selecionada para mão 1 e 2
+        mao1 = imagemHSV(rect1);
+        mao2 = imagemHSV(rect2);
+
         //SEGMENTANDO A IMAGEM EM 2 RANGES PARA A COR DA PELE
-        inRange(imagemHSV,  Scalar(0, 30, 0), Scalar(20, 255, 255), primeiraFaixa);
-        inRange(imagemHSV, Scalar(170, 30, 0), Scalar(180, 255, 255), segundaFaixa);
-        mascaraPele = primeiraFaixa | segundaFaixa;
+        inRange(mao2,  Scalar(0, 30, 0), Scalar(20, 255, 255), primeiraFaixa);
+        inRange(mao2, Scalar(170, 30, 0), Scalar(180, 255, 255), segundaFaixa);
+        mao2 = primeiraFaixa | segundaFaixa;
+
+        inRange(mao1,  Scalar(0, 30, 0), Scalar(20, 255, 255), primeiraFaixa);
+        inRange(mao1, Scalar(170, 30, 0), Scalar(180, 255, 255), segundaFaixa);
+        mao1 = primeiraFaixa | segundaFaixa;
 
         // Operador morfologico de dilatação
-        dilate(mascaraPele, mascaraPele, kernel, Point(-1,-1), 2);
+        dilate(mao2, mao2, kernel, Point(-1,-1), 2);
+        dilate(mao1, mao1, kernel, Point(-1,-1), 2);
 
         //Passa baixa para remoção de ruidos
-        GaussianBlur(mascaraPele, mascaraPele, Size(3, 3), 0);
+        blur(mao2,mao2,Size(3,3));
+        blur(mao1, mao1, Size(3,3));
 
-        //Cortando a parte selecionada para mão 1 e 2
-        mao1 = mascaraPele(rect2);
-        mao2 = mascaraPele(rect);
-
-        findContours(mao2, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
+        findContours(mao1, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
         maiorA = 0;
         indexA = 0;
         for (int i = 0; i < contours.size(); i++){
@@ -89,18 +92,30 @@ int main() {
                 indexA = i;
             }
         }
-        vector<vector<Point> >hull(1);
-        convexHull(Mat(contours[indexA]), hull[0], false );
 
-        drawContours(frame, hull, (int)0, Scalar(255,255,255), 3, 8, vector<Vec4i>(), 0, Point() );
+
+        std::vector<std::vector<int> > hullsI(2);
+        std::vector<std::vector<cv::Vec4i> >convDef(2);
+
+        cv::convexHull(cv::Mat(contours[indexA]), hullsI[0], false, true);
+        cv::convexityDefects(contours[indexA], hullsI[0], convDef[0]);
+        for (int j = 0; j < convDef[0].size(); ++j){
+            //float depth = convDef[0][j][3]/256;
+            if (convDef[0][j][3] > 25*256 /*filter defects by depth*/){
+                int ind_0 = convDef[0][j][0];//start point
+                int ind_1 = convDef[0][j][1];//end point
+                int ind_2 = convDef[0][j][2];//defect point
+                cv::circle(frame, contours[indexA][ind_0], 5, cv::Scalar(0, 0, 255), -1);
+                cv::circle(frame, contours[indexA][ind_1], 5, cv::Scalar(255, 0, 0), -1);
+                cv::circle(frame, contours[indexA][ind_2], 5, cv::Scalar(0, 255, 0), -1);
+            }
+        }
+
+
 
         //Exibindo as areas das mãos
-        cv::rectangle(frame, rect, cv::Scalar(0, 255, 0),2);
+        cv::rectangle(frame, rect1, cv::Scalar(0, 255, 0),2);
         cv::rectangle(frame, rect2, cv::Scalar(0, 255, 0),2);
-
-        //Invertendo a imagem para uma melhor visualização
-        cv::flip(frame,frame,1);
-        cv::flip(mascaraPele,mascaraPele,1);
 
         //Colocando informações textuais na tela
         putText(frame,"JOGADOR 1", Point2f(150,550), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
@@ -110,8 +125,8 @@ int main() {
 
         //Exibindo imagem
         imshow("Entrada",frame);
-        imshow("Mao 2", mao1);
-        imshow("Mao 1", mao2);
+        //imshow("Jogador 2", mao2);
+        //imshow("Jogador 1", mao1);
 
         }
     }
