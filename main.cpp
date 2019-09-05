@@ -47,7 +47,9 @@ int main() {
 
     int maiorA = 0;
     int indexA = 0;
-
+    int valor = 19;
+    namedWindow( "window_name", CV_WINDOW_AUTOSIZE );
+    createTrackbar("Depth", "window_name", &valor, 256);
     //Início do laço de captura da câmera.
     while (true) {
         camera >> frame;
@@ -100,18 +102,39 @@ int main() {
         cv::convexHull(cv::Mat(contours[indexA]), hullsI[0], false, true);
         cv::convexityDefects(contours[indexA], hullsI[0], convDef[0]);
         for (int j = 0; j < convDef[0].size(); ++j){
-            //float depth = convDef[0][j][3]/256;
-            if (convDef[0][j][3] > 25*256 /*filter defects by depth*/){
+            float depth = convDef[0][j][3]/256.0;
+            if (depth > valor /*filter defects by depth*/){
                 int ind_0 = convDef[0][j][0];//start point
-                int ind_1 = convDef[0][j][1];//end point
-                int ind_2 = convDef[0][j][2];//defect point
+                contours[indexA][ind_0].x += 10;
+                contours[indexA][ind_0].y += 10;
                 cv::circle(frame, contours[indexA][ind_0], 5, cv::Scalar(0, 0, 255), -1);
-                cv::circle(frame, contours[indexA][ind_1], 5, cv::Scalar(255, 0, 0), -1);
-                cv::circle(frame, contours[indexA][ind_2], 5, cv::Scalar(0, 255, 0), -1);
             }
         }
 
+        findContours(mao2, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
+        maiorA = 0;
+        indexA = 0;
+        for (int i = 0; i < contours.size(); i++){
+            double a = contourArea(contours[i],false);
+            if (a > maiorA){
+                maiorA = a;
+                indexA = i;
+            }
+        }
 
+        cv::convexHull(cv::Mat(contours[indexA]), hullsI[1], false, true);
+        cv::convexityDefects(contours[indexA], hullsI[1], convDef[1]);
+        for (int j = 0; j < convDef[1].size(); ++j){
+            float depth = convDef[1][j][3]/256.0;
+            if (depth > valor /*filter defects by depth*/){
+                int ind_0 = convDef[1][j][0];//start point
+                contours[indexA][ind_0].x += 815;
+                contours[indexA][ind_0].y += 10;
+                cv::circle(frame, contours[indexA][ind_0], 5, cv::Scalar(0, 0, 255), -1);
+
+            }
+
+        }
 
         //Exibindo as areas das mãos
         cv::rectangle(frame, rect1, cv::Scalar(0, 255, 0),2);
