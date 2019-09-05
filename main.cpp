@@ -40,7 +40,7 @@ int main() {
 
     //Kernel utilizado para as operações morfológicas.
     Mat kernel;
-    kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+    kernel = getStructuringElement(MORPH_ELLIPSE, Size(11, 11));
 
     cv::Rect rect1(10, 10, 450, 500);
     cv::Rect rect2(815, 10, 450, 500);
@@ -77,12 +77,14 @@ int main() {
         mao1 = primeiraFaixa | segundaFaixa;
 
         // Operador morfologico de dilatação
+        //erode(mao2, mao2, kernel, Point(-1,-1), 2);
+        //erode(mao1, mao1, kernel, Point(-1,-1), 2);
         dilate(mao2, mao2, kernel, Point(-1,-1), 2);
         dilate(mao1, mao1, kernel, Point(-1,-1), 2);
 
         //Passa baixa para remoção de ruidos
-        blur(mao2,mao2,Size(3,3));
-        blur(mao1, mao1, Size(3,3));
+        GaussianBlur(mao2, mao2, Size(3, 3),0);
+        GaussianBlur(mao2, mao2, Size(3, 3),0);
 
         findContours(mao1, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
         maiorA = 0;
