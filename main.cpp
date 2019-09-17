@@ -117,15 +117,16 @@ int main() {
             //Colocando informações textuais na tela
             putText(frame,std::to_string(contador), Point2f(150,350), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
             putText(frame,std::to_string(contador), Point2f(150,350), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
-            putText(frame,"PC: " + std::to_string(numero), Point2f(400,50), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
-            putText(frame,"PC: " + std::to_string(numero), Point2f(400,50), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
+
             if (play){
+                putText(frame,"PC: " + std::to_string(numero), Point2f(400,50), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
+                putText(frame,"PC: " + std::to_string(numero), Point2f(400,50), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
                 if (win == 0){
-                putText(frame,"VENCEU", Point2f(290,440), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
-                putText(frame,"VENCEU", Point2f(290,440), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
+                putText(frame,"VENCEU", Point2f(250,440), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
+                putText(frame,"VENCEU", Point2f(250,440), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
                 } else {
-                    putText(frame,"PERDEU", Point2f(290,440), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
-                    putText(frame,"PERDEU", Point2f(290,440), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
+                    putText(frame,"PERDEU", Point2f(250,440), FONT_HERSHEY_PLAIN, 2,  Scalar(0,0,0), 4);
+                    putText(frame,"PERDEU", Point2f(250,440), FONT_HERSHEY_PLAIN, 2,  Scalar(255,255,255), 1);
                 }
             }
 
