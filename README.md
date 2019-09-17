@@ -1,1 +1,0 @@
-An algorithm developed in open cv to detect and count fingers from two hands e notify sum of them is either odd or even.
